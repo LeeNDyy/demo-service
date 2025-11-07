@@ -1,6 +1,6 @@
 # Stage 1
 
-FROM golang:1.24-alpine3.22 as builder
+FROM golang:1.24.2 as builder
 
 WORKDIR /myapp
 
@@ -13,7 +13,7 @@ RUN go build -o gateway /myapp/main.go
 
 # Stage 2
 
-FROM alpine3.22.2
+FROM alpine:3.22
 
 WORKDIR /myapp
 
