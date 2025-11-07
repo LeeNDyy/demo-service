@@ -17,7 +17,7 @@ FROM alpine:3.22
 
 WORKDIR /myapp
 
-COPY --from=builder ./myapp/goservice ./
+COPY --from=builder /myapp/goservice .
 
 CMD [ "/myapp/goservice" ]
 
