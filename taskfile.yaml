@@ -1,0 +1,48 @@
+version: "3"
+
+dotenv:
+  - .env
+
+tasks:
+  prepare:
+    cmd: go mod tidy
+
+  lint:
+    cmds:
+      - golangci-lint run ./cmd
+
+  test:
+    cmds:
+      - go test -cover ./cmd
+
+  compile:
+    cmd: GOOS=linux go build -o ./goapp/goapp ./goapp
+
+  build:
+    cmd: docker build --pull --rm -f './goapp/Dockerfile' -t 'lendy1/goapp:latest' '.'
+
+  push:
+    cmds:
+      - docker tag lendy1/goapp:latest lendy1/goapp:${APP_VERSION}
+      - docker push lendy1/goapp:${APP_VERSION}
+      - docker push lendy1/goapp:latest
+
+  deploy:
+    cmd: echo "Deploy to K8S"
+
+#алгоритм сборки и пуша контейнера на docker hub
+  release:
+    cmds:
+      - task: prepare
+      - task: lint
+      - task: test
+      - task: compile
+      - task: build
+      - task: push
+      - task: deploy
+
+# поднятие приложение при помощи K8S
+  kube:
+    cmds:
+      - kubectl apply -f ./deployments/deployment.yaml
+      - kubectl apply -f ./deployments/service.yaml
