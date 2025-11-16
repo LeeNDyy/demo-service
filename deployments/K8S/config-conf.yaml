@@ -1,0 +1,53 @@
+# config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-conf
+  namespace: sirius
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream appapi {
+            server localhost:7001;
+        }
+        
+        upstream appinfo {
+            server localhost:7023;
+        }
+        
+        upstream applogin {
+            server localhost:7058;
+        }
+        
+        server {
+            listen 80;
+            client_max_body_size 10M;
+            
+            location /api {
+                proxy_pass http://appapi;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+            
+            location /info {
+                proxy_pass http://appinfo;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+            
+            location /login {
+                proxy_pass http://applogin;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+            
+            # Default location
+            location / {
+                return 404;
+            }
+        }
+    }
