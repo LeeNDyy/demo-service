@@ -1,0 +1,8 @@
+FROM alpine:3.22
+
+WORKDIR /app
+
+COPY ./bin/appapi .
+# RUN chmod 777 ./appapi
+
+CMD ["/app/appapi"]
