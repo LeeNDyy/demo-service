@@ -1,0 +1,33 @@
+version: "3"
+
+dotenv:
+  - .env
+
+tasks:
+
+  compile:
+    cmds:
+      - GOOS=linux go build -o ./bin/appapi ./cmd/api/
+      - GOOS=linux go build -o ./bin/appinfo ./cmd/info/
+      - GOOS=linux go build -o ./bin/applogin ./cmd/login/
+
+  build:
+    cmds:
+      - docker build -f cmd/api/dockerfile -t appapi:latest .
+      - docker build -f cmd/info/dockerfile -t appinfo:latest .
+      - docker build -f cmd/login/dockerfile -t applogin:latest .
+
+
+  deploy:
+    cmds:
+      - kubectl apply -f ./deployments/K8S/config-conf.yaml 
+      - kubectl apply -f ./deployments/K8S/config-env-api.yaml 
+      - kubectl apply -f ./deployments/K8S/config-env-info.yaml 
+      - kubectl apply -f ./deployments/K8S/config-env-login.yaml 
+      - kubectl apply -f ./deployments/K8S/deployment.yaml
+
+  release:
+    cmds:
+      - task: compile
+      - task: build
+      - task: deploy
